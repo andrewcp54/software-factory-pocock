@@ -84,6 +84,58 @@ You don't need these yet, but you'll be asked for them along the way. Both have 
 - **[Knock](https://knock.app/)**, a free Developer account, when you build notifications. Its keys go in `.env`, which is gitignored.
 - **[tldraw](https://www.tldraw.com/)**, for whiteboarding your tasks. Any drawing app will do.
 
+## Running in a Docker Sandbox (sbx)
+
+Personal notes: extra setup needed to run this repo inside the `pocock-course` Docker Sandbox (Docker Hardened Debian 13, arm64). The sandbox ships Node 20 with no C toolchain, and this repo needs Node 22+ and compiles better-sqlite3 from source. System packages installed this way live only in that sandbox; redo them if it is recreated.
+
+### Inside the sandbox (once)
+
+```bash
+# Node 26 from nvm needs libatomic; better-sqlite3 has no prebuilt binary here, so it needs cc/make
+sudo apt-get update
+sudo apt-get install -y libatomic1 build-essential
+
+# nvm refuses to run while NPM_CONFIG_PREFIX is set
+unset NPM_CONFIG_PREFIX
+nvm install node          # installed v26.13.1
+
+# vim is installed as /usr/bin/vim.basic only; register the usual names
+for n in vim vi editor; do sudo update-alternatives --install /usr/bin/$n $n /usr/bin/vim.basic 30; done
+```
+
+### Inside the sandbox (every new shell)
+
+```bash
+unset NPM_CONFIG_PREFIX && nvm use 26
+```
+
+Then `npm install`, `npm run db:migrate`, `npm run db:seed` as normal.
+
+### Reaching the dev server from the Mac
+
+On the host, publish the port once (binds to loopback only, on both 127.0.0.1 and ::1):
+
+```bash
+sbx ports pocock-course --publish 5173:5173/tcp
+sbx ports pocock-course                              # list
+sbx ports pocock-course --unpublish 5173:5173        # remove
+```
+
+In the sandbox, start the dev server on all interfaces. Without `--host` it listens only on the sandbox's `[::1]`, which the published port cannot reach:
+
+```bash
+npm run dev -- --host
+```
+
+Then open `http://localhost:5173` on the Mac.
+
+### Running commands in the sandbox from the host
+
+```bash
+sbx exec pocock-course bash -lc '<command>'
+sbx exec -it pocock-course bash
+```
+
 ## Scripts
 
 | Command                      | Description                                  |
