@@ -8,7 +8,7 @@ app/modules/
     index.ts          ← an entry point (public). Import this from outside.
     index.server.ts   ← another entry point. A module may expose several.
     lib/              ← implementation: private, free to import each other.
-    tests/            ← tests + fixtures: private, test through the entry points.
+    tests/            ← tests + fixtures: private, test through the entry points. Required.
 ```
 
 Copy `example/` to start a new module.
@@ -19,11 +19,12 @@ Copy `example/` to start a new module.
 
 ## The rules
 
-Enforced by dependency-cruiser (`.dependency-cruiser.cjs`). Run `npm run lint:boundaries`, or `npm run check` for typecheck + boundaries + tests.
+Rules 1–4 are enforced by dependency-cruiser (`.dependency-cruiser.cjs`). Run `npm run lint:boundaries`, or `npm run check` for typecheck + boundaries + tests.
 
 1. **Entry-point boundary.** Code outside a module (routes, `app/lib`, other modules) imports only that module's root files, never anything in its subfolders.
 2. **Intra-module freedom.** A module's own files import each other freely.
 3. **Tests through the entry points.** Files in `<module>/tests/` import any module's entry points and their own `tests/` fixtures, never any module's subfolder internals, not even their own. Nothing outside `tests/` may import from it.
 4. **No cycles.** No dependency cycles anywhere in `app/`.
+5. **Every module has tests.** Each module's `tests/` holds at least one `*.test.ts`. Checked by `scripts/check-module-tests.js`, which `npm run lint:boundaries` runs.
 
 Modules are flat: one level of folders under `app/modules/`. A module may not contain another module.

@@ -28,7 +28,7 @@ const validFields = {
 };
 
 describe("fileIssue", () => {
-  it("files the feedback on origin's repo and returns the issue URL", async () => {
+  it("files the feedback on origin's repo, queued for the explorer, and returns the issue URL", async () => {
     const { run, calls } = fakeRun("git@github.com:alice/cadence.git");
     const feedback = createFeedback({ isDev: true, run });
 
@@ -48,6 +48,8 @@ describe("fileIssue", () => {
           "My long note disappeared",
           "--body",
           "_Sent from the feedback button on `/courses/typescript/lessons/3`._\n\nI clicked Save and the note was gone.\n",
+          "--label",
+          "agent:explore",
         ],
       },
     ]);

@@ -42,10 +42,6 @@ Test setup calls the module's own functions. When the function you need does
 not exist, add it to the module rather than inserting rows directly, so a
 change to how the module stores its data leaves its tests alone.
 
-## Keep files under 5000 tokens
-
-Keep every file under 5000 tokens.
-
 ## Wrap related writes in a transaction
 
 Two writes that must both land, or neither, go in a transaction. If the second
@@ -105,6 +101,21 @@ const [count, setCount] = useState(rows.length);
 // Good
 const [items, setItems] = useState(rows);
 const count = items.length;
+```
+
+## Form state resets with the record it edits
+
+A route component stays mounted when only its params change, so `useState`
+seeded from loader data keeps the old record's value. Moving from lesson 1 to
+lesson 2 then shows lesson 1's draft, and saving writes it to lesson 2. Key the
+component that holds the state by the record's id.
+
+```tsx
+// Bad: the draft outlives the lesson
+<LessonNote note={note} />
+
+// Good: a new lesson mounts a new editor
+<LessonNote key={lesson.id} note={note} />
 ```
 
 ## A comment explains why

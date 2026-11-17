@@ -89,6 +89,24 @@
     "sql/no-dynamic-raw": "error"
   },
   "overrides": [
+    // Components are shared across routes, so they may not depend on one
+    // route's generated types. Take the props the component needs instead.
+    {
+      "files": ["app/components/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["**/+types/*", "./+types/*"],
+                "message": "A component may not import a route's generated types. Declare the props it needs instead."
+              }
+            ]
+          }
+        ]
+      }
+    },
     {
       "files": [
         "app/routes/**",

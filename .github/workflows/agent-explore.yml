@@ -162,6 +162,15 @@ jobs:
         if: steps.batch.outputs.numbers != '[]'
         run: npm install -g @anthropic-ai/claude-code
 
+      - name: Install agent-browser
+        if: steps.batch.outputs.numbers != '[]'
+        # The agent drives the app in a real browser for its screenshots and
+        # checks (docs/agents/agent-browser.md). Installed here, pinned, so the
+        # agent does not spend its first turns downloading a browser.
+        run: |
+          npm install -g agent-browser@0.43.0
+          agent-browser install
+
       - name: Explore
         if: steps.batch.outputs.numbers != '[]'
         env:
@@ -170,6 +179,23 @@ jobs:
         # The plan comes back as plan.json, shaped and validated by
         # .sandcastle/agent-workflows/explore/plan-schema.ts.
         run: npx tsx .sandcastle/agent-workflows/explore/explore.ts
+
+      - name: Collect the agent's transcripts
+        if: always() && steps.batch.outputs.numbers != '[]'
+        # Only the Claude token, which the agent already holds: this runs a
+        # script the agent could have edited, so FACTORY_PAT never comes here.
+        env:
+          REDACT_CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: .sandcastle/agent-workflows/shared/collect-transcripts.sh "$RUNNER_TEMP/transcripts"
+
+      - name: Upload the agent's transcripts
+        if: always() && steps.batch.outputs.numbers != '[]'
+        uses: actions/upload-artifact@v4
+        with:
+          name: transcripts-explore
+          path: ${{ runner.temp }}/transcripts
+          retention-days: 7
+          if-no-files-found: ignore
 
       - name: Hand the plan to the apply job
         id: plan

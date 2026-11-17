@@ -306,6 +306,14 @@ jobs:
       - name: Install Claude Code
         run: npm install -g @anthropic-ai/claude-code
 
+      - name: Install agent-browser
+        # The agent drives the app in a real browser for its screenshots and
+        # checks (docs/agents/agent-browser.md). Installed here, pinned, so the
+        # agent does not spend its first turns downloading a browser.
+        run: |
+          npm install -g agent-browser@0.43.0
+          agent-browser install
+
       - name: Decompose the spec into a queue
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -313,6 +321,23 @@ jobs:
         # Reads only. The queue comes back as queue.json, shaped and validated
         # by .sandcastle/agent-workflows/implement-spec/decomposition-schema.ts.
         run: npx tsx .sandcastle/agent-workflows/implement-spec/decompose.ts
+
+      - name: Collect the agent's transcripts
+        if: always()
+        # Only the Claude token, which the agent already holds: this runs a
+        # script the agent could have edited, so FACTORY_PAT never comes here.
+        env:
+          REDACT_CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: .sandcastle/agent-workflows/shared/collect-transcripts.sh "$RUNNER_TEMP/transcripts"
+
+      - name: Upload the agent's transcripts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: transcripts-decompose
+          path: ${{ runner.temp }}/transcripts
+          retention-days: 7
+          if-no-files-found: ignore
 
       - name: Write the queue as issues
         env:
@@ -412,6 +437,14 @@ jobs:
       - name: Install Claude Code
         run: npm install -g @anthropic-ai/claude-code
 
+      - name: Install agent-browser
+        # The agent drives the app in a real browser for its screenshots and
+        # checks (docs/agents/agent-browser.md). Installed here, pinned, so the
+        # agent does not spend its first turns downloading a browser.
+        run: |
+          npm install -g agent-browser@0.43.0
+          agent-browser install
+
       - name: Migrate and seed the database
         run: |
           npm run db:migrate
@@ -476,6 +509,23 @@ jobs:
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
         run: npx tsx .sandcastle/agent-workflows/implement-spec/build.ts
+
+      - name: Collect the agent's transcripts
+        if: always()
+        # Only the Claude token, which the agent already holds: this runs a
+        # script the agent could have edited, so FACTORY_PAT never comes here.
+        env:
+          REDACT_CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: .sandcastle/agent-workflows/shared/collect-transcripts.sh "$RUNNER_TEMP/transcripts"
+
+      - name: Upload the agent's transcripts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: transcripts-implement-spec
+          path: ${{ runner.temp }}/transcripts
+          retention-days: 7
+          if-no-files-found: ignore
 
       - name: Check the agent committed
         # A run with no commit fails here, so the ticket is parked with
