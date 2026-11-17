@@ -1,0 +1,1 @@
+CREATE INDEX `video_watch_events_user_created_idx` ON `video_watch_events` (`user_id`,`created_at`);

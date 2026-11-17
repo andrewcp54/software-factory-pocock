@@ -39,6 +39,21 @@ A Student who has lost their Enrollment on a course but still has progress on it
 Seconds of video a Student has actually played in a course: the furthest point reached in each lesson, added up. Not lessons opened.
 _Avoid_: Viewed, Progress
 
+### Learning Activity
+
+**Learning Activity**:
+A Student's record of which days they studied over the last year, and the
+streaks those days make. Private to the Student. Derived from what they did;
+nothing extra is stored.
+_Avoid_: Calendar, Contributions, Streaks (for the whole thing)
+
+**Active Day**:
+A UTC calendar day on which a Student completed a lesson, attempted a quiz,
+or Watched at least 60 seconds of video. Comments, Notes and Bookmarks don't
+count. Missing one Active Day ends a streak, but today can't be missed until
+it is over.
+_Avoid_: Study day, Contribution
+
 ### Discussions
 
 **Discussion Question**:
