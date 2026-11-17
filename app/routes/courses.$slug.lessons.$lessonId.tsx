@@ -11,7 +11,6 @@ import { FullLesson } from "~/components/lesson-full";
 import { Link, data, isRouteErrorResponse } from "react-router";
 import { LockedLesson } from "~/components/lesson-locked";
 import { MAX_NOTE_LENGTH } from "~/lib/notes";
-import { eq } from "drizzle-orm";
 import {
   calculateWatchProgress,
   getLastWatchPosition,
@@ -20,10 +19,10 @@ import {
   markLessonComplete,
   markLessonInProgress,
 } from "~/modules/lesson-viewer/progress.server";
-import { quizzes } from "~/db/schema";
 import {
   computeResult,
   getBestAttempt,
+  getQuizById,
   getQuizByLessonId,
   getQuizWithQuestions,
 } from "~/modules/lesson-viewer/quiz.server";
@@ -435,7 +434,7 @@ export async function action({ params, request }: Route.ActionArgs) {
     }
     // Scope the quiz to this lesson so a quiz elsewhere can't be reached by
     // posting its id to this route.
-    const quiz = db.select().from(quizzes).where(eq(quizzes.id, quizId)).get();
+    const quiz = getQuizById(quizId);
     if (!quiz || quiz.lessonId !== lessonId) {
       throw data("Quiz not found", { status: 404 });
     }
