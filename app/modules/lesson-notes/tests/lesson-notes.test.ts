@@ -56,4 +56,18 @@ describe("noteDraftStatus", () => {
     expect(status.tooLong).toBe(true);
     expect(status.canSave).toBe(false);
   });
+
+  it("treats the saved note as saved when the box only adds surrounding whitespace", () => {
+    expect(noteDraftStatus("same \n", "same")).toMatchObject({
+      unsaved: false,
+      canSave: false,
+    });
+  });
+
+  it("does not count surrounding whitespace against the limit", () => {
+    const status = noteDraftStatus(` ${"a".repeat(MAX_NOTE_LENGTH)}\n`, null);
+    expect(status.length).toBe(MAX_NOTE_LENGTH);
+    expect(status.tooLong).toBe(false);
+    expect(status.canSave).toBe(true);
+  });
 });

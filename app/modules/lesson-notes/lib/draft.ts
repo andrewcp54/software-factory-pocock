@@ -13,13 +13,15 @@ export function describeDraft(
   draft: string,
   savedBody: string | null
 ): NoteDraft {
-  const tooLong = draft.length > MAX_NOTE_LENGTH;
+  // The action trims before it checks and stores, so judge what it would store.
+  const body = draft.trim();
+  const tooLong = body.length > MAX_NOTE_LENGTH;
   // The action rejects a blank note, so a blank box is never worth sending.
-  const blank = draft.trim().length === 0;
-  const unsaved = draft !== (savedBody ?? "");
+  const blank = body.length === 0;
+  const unsaved = body !== (savedBody ?? "");
 
   return {
-    length: draft.length,
+    length: body.length,
     maxLength: MAX_NOTE_LENGTH,
     tooLong,
     unsaved,
