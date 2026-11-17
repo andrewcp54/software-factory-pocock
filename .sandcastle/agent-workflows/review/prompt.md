@@ -30,3 +30,5 @@ Write your verdict on the branch, after your fixes, to /tmp/review-verdict.md:
 When the change shows in the UI, save screenshots as PNGs in /tmp/evidence/.
 Reference each in the verdict by its absolute path, e.g.
 `![after](/tmp/evidence/after.png)`. The workflow uploads them.
+
+When the work is done, end your last message with `<promise>COMPLETE</promise>`.

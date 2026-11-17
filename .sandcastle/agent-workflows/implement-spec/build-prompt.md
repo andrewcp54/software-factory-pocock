@@ -34,3 +34,5 @@ Write your summary to /tmp/pr-body.md: what the ticket asked for, what you
 built, what you deliberately left out. In its Evidence section, reference each
 screenshot by its absolute path, e.g. `![after](/tmp/evidence/after.png)`. The
 workflow uploads them.
+
+When the work is done, end your last message with `<promise>COMPLETE</promise>`.

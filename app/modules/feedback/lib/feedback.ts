@@ -41,6 +41,12 @@ async function originRepo(run: RunCommand) {
   return repo;
 }
 
+// Feedback is a first impression, not a spec: "maybe it could be more
+// integrated with the bit at the bottom". The explorer reads the code and
+// turns it into findings and open questions before anyone builds anything.
+// Filing an issue starts that run, since the label is the factory's trigger.
+const EXPLORE_LABEL = "agent:explore";
+
 export async function fileFeedbackIssue(deps: FeedbackDeps, form: FormData) {
   if (!deps.isDev) throw data("Not found", { status: 404 });
 
@@ -59,6 +65,8 @@ export async function fileFeedbackIssue(deps: FeedbackDeps, form: FormData) {
     parsed.data.title,
     "--body",
     issueBody(parsed.data),
+    "--label",
+    EXPLORE_LABEL,
   ]);
 
   return { issueUrl: stdout.trim() };

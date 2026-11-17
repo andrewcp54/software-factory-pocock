@@ -65,6 +65,9 @@ export async function runWithExtraction<T>(
     prompt: extractionPrompt,
     resumeSession: sessionId,
     output: extractionOutput,
+    // The answer is complete once its tag closes. Without a signal, Sandcastle
+    // reports every extraction as finishing "without completion signal".
+    completionSignal: `</${output.tag}>`,
   });
 
   return { ...produce, output: extraction.output };

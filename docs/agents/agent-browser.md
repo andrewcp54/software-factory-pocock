@@ -12,6 +12,9 @@ npm install -g agent-browser
 agent-browser install
 ```
 
+The factory workflows install it before the agent starts, so in CI
+`agent-browser` is already on the PATH.
+
 ## Asking your own question
 
 Start the app with `npm run dev` first. The examples below use
@@ -51,6 +54,35 @@ change you are reporting on trust.
 
 Screenshots are PR evidence: a before and an after for a change that shows in
 the UI.
+
+## Signing in and reaching a page
+
+Most pages need a signed-in user. Sign in the way the DevUI panel does: post a
+user id to `/api/switch-user` from inside the page, so the browser keeps the
+cookie.
+
+```bash
+agent-browser open http://localhost:5173/
+agent-browser eval "fetch('/api/switch-user', {method: 'POST', body: new URLSearchParams({userId: '5'})}).then(r => r.status)"
+agent-browser open http://localhost:5173/courses/introduction-to-typescript/lessons/1
+```
+
+`npm run db:seed` always creates the same data, so these work on any fresh
+database:
+
+| User        | id  | Role       | Useful for                                                                    |
+| ----------- | --- | ---------- | ----------------------------------------------------------------------------- |
+| Alex Rivera | 1   | admin      | `/admin/*`                                                                    |
+| Sarah Chen  | 2   | instructor | teaches `introduction-to-typescript` (course 1)                               |
+| Emma Wilson | 5   | student    | enrolled in `introduction-to-typescript` and `building-rest-apis-with-nodejs` |
+
+| Page, as Emma                                 | Path                                               |
+| --------------------------------------------- | -------------------------------------------------- |
+| A lesson with a video, notes and discussion   | `/courses/introduction-to-typescript/lessons/1`    |
+| A lesson with a quiz                          | `/courses/introduction-to-typescript/lessons/3`    |
+| A lesson she has not bought (the locked view) | `/courses/design-systems-with-tailwind/lessons/40` |
+
+For anything else, query `data.db` with `sqlite3`.
 
 ## Two things that will bite you
 
