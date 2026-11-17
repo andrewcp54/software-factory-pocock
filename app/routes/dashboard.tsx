@@ -11,6 +11,8 @@ import {
 } from "~/db/schema";
 import { eq, and, or, sql } from "drizzle-orm";
 import { people } from "~/modules/permissions/person.server";
+import { learningActivity } from "~/modules/learning-activity/index.server";
+import { LearningActivityCalendar } from "~/components/learning-activity-calendar";
 import {
   Card,
   CardContent,
@@ -234,7 +236,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   const completedCourses = coursesWithProgress.filter((c) => c.isCompleted);
   const inProgressCourses = coursesWithProgress.filter((c) => !c.isCompleted);
 
-  return { inProgressCourses, completedCourses };
+  const activity = learningActivity.get(currentUserId, { now: new Date() });
+
+  return { inProgressCourses, completedCourses, activity };
 }
 
 function DashboardCardSkeleton() {
@@ -278,7 +282,7 @@ export function HydrateFallback() {
 }
 
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
-  const { inProgressCourses, completedCourses } = loaderData;
+  const { inProgressCourses, completedCourses, activity } = loaderData;
   const totalCourses = inProgressCourses.length + completedCourses.length;
 
   return (
@@ -312,6 +316,8 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
         </div>
       ) : (
         <div className="space-y-8">
+          <LearningActivityCalendar activity={activity} />
+
           {/* In Progress Courses */}
           {inProgressCourses.length > 0 && (
             <section>

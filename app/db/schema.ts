@@ -32,6 +32,14 @@ export enum QuestionType {
   TrueFalse = "true_false",
 }
 
+export enum VideoWatchEventType {
+  Play = "play",
+  Pause = "pause",
+  Ended = "ended",
+  /** Posted every 10 seconds while the video is playing. */
+  Progress = "progress",
+}
+
 export enum RefundStatus {
   Open = "open",
   Approved = "approved",
@@ -361,20 +369,29 @@ export const comments = sqliteTable(
   ]
 );
 
-export const videoWatchEvents = sqliteTable("video_watch_events", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  userId: integer("user_id")
-    .notNull()
-    .references(() => users.id),
-  lessonId: integer("lesson_id")
-    .notNull()
-    .references(() => lessons.id),
-  eventType: text("event_type").notNull(),
-  positionSeconds: real("position_seconds").notNull(),
-  createdAt: text("created_at")
-    .notNull()
-    .$defaultFn(() => new Date().toISOString()),
-});
+export const videoWatchEvents = sqliteTable(
+  "video_watch_events",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id),
+    lessonId: integer("lesson_id")
+      .notNull()
+      .references(() => lessons.id),
+    eventType: text("event_type").notNull(),
+    positionSeconds: real("position_seconds").notNull(),
+    createdAt: text("created_at")
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
+  },
+  (table) => [
+    index("video_watch_events_user_created_idx").on(
+      table.userId,
+      table.createdAt
+    ),
+  ]
+);
 
 export const bookmarks = sqliteTable(
   "bookmarks",
